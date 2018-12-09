@@ -1,5 +1,6 @@
 package com.project.androidtestwidgetonly;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -7,6 +8,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.pdf.PdfRenderer;
@@ -19,7 +21,10 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelFileDescriptor;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
@@ -33,6 +38,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 
 /**
  * Implementation of App Widget functionality.
@@ -72,6 +78,7 @@ public class Schedule extends AppWidgetProvider
             @Override
             protected Void doInBackground(Void... voids)
             {
+
                 Log.d(PREFIX, "doInBackground");
                 try
                 {
@@ -89,12 +96,18 @@ public class Schedule extends AppWidgetProvider
                         int end1 = sb1.indexOf(".pdf", pos1);
                         pdfUrlNew = sb1.substring(pos1+76, end1+4);
                     }
+
+                    views.setTextViewText(R.id.textView,DateFormat.format("dd/MM/yyyy hh:mm:ss", System.currentTimeMillis()).toString());
                     if(pdfUrl == null || pdfUrlNew != pdfUrl)
                     {
                         pdfUrl = pdfUrlNew;
                         URL file = new URL(pdfUrl);
 
                         String fileNamePath = Environment.getExternalStorageDirectory().toString() + "/load/" + "rasp.pdf";
+                        File dire = new File(Environment.getExternalStorageDirectory().toString() + "/load");
+                        if(!dire.exists())
+                            dire.mkdir();
+
                         try(InputStream is = file.openStream())
                         {
                             int len;
@@ -120,7 +133,7 @@ public class Schedule extends AppWidgetProvider
                             Log.d(PREFIX, Integer.toString(bitmap.getWidth()));
                             int x = 80;
                             int y = 30;
-                            Bitmap bmp = Bitmap.createBitmap(bitmap, x ,  y, bitmap.getWidth() - x - 50, bitmap.getHeight()/4 - y + 15);
+                            Bitmap bmp = Bitmap.createBitmap(bitmap, x ,  y, bitmap.getWidth() - x - 35, bitmap.getHeight()/4 - y + 15);
                             views.setBitmap(R.id.imageView, "setImageBitmap", bmp);
                             page.close();
                         }
